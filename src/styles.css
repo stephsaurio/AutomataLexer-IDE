@@ -1,1 +1,28 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+  margin: 0;
+  background: #929292;
+}
+
+.reserved {
+  color: #304cee;
+}
+
+.identifier {
+  color: #1b771b;
+}
+
+.number {
+  color: #e6941b;
+}
+
+.string {
+  color: #542296;
+}
+
+.operator {
+  color: #8f1515;
+}
+
+.comment {
+  color: #949992;
+}
