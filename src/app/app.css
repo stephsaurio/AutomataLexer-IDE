@@ -222,7 +222,9 @@
 
   border-top: 2px solid #569cd6;
 }
-
+.fresita {
+  color: #ff69b4;
+}
 .panel-content {
   flex: 1;
 

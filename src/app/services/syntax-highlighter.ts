@@ -6,20 +6,34 @@ enum HighlightState {
   NUMBER,
   STRING,
   LINE_COMMENT,
-  BLOCK_COMMENT
+  BLOCK_COMMENT,
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SyntaxHighlighter {
-
   reservedWords = [
-    'STACK', 'QUEUE', 'LIST', 'HASH', 'TREE',
-    'PUSH', 'POP', 'ENQUEUE', 'DEQUEUE',
-    'INSERT', 'REMOVE', 'SET', 'GET',
-    'ADDNODE', 'ROOT', 'LEFT', 'RIGHT',
-    'PRINT', 'GRAPH'
+    'STACK',
+    'QUEUE',
+    'LIST',
+    'HASH',
+    'TREE',
+    'PUSH',
+    'POP',
+    'ENQUEUE',
+    'DEQUEUE',
+    'INSERT',
+    'REMOVE',
+    'SET',
+    'GET',
+    'ADDNODE',
+    'ROOT',
+    'LEFT',
+    'RIGHT',
+    'PRINT',
+    'GRAPH',
+    'FRESITA',
   ];
 
   highlight(text: string): string {
@@ -30,11 +44,9 @@ export class SyntaxHighlighter {
     let lexeme = '';
 
     while (i < text.length) {
-
       const character = text[i];
 
       if (state === HighlightState.START) {
-
         if (text.startsWith('//', i)) {
           state = HighlightState.LINE_COMMENT;
           lexeme = '//';
@@ -82,7 +94,6 @@ export class SyntaxHighlighter {
       }
 
       if (state === HighlightState.IDENTIFIER) {
-
         if (/[a-zA-Z0-9_]/.test(character)) {
           lexeme += character;
           i++;
@@ -90,7 +101,11 @@ export class SyntaxHighlighter {
         }
 
         if (this.reservedWords.includes(lexeme)) {
-          result += `<span class="reserved">${this.escapeHtml(lexeme)}</span>`;
+          if (lexeme === 'FRESITA') {
+            result += `<span class="fresita">${this.escapeHtml(lexeme)}</span>`;
+          } else {
+            result += `<span class="reserved">${this.escapeHtml(lexeme)}</span>`;
+          }
         } else {
           result += `<span class="identifier">${this.escapeHtml(lexeme)}</span>`;
         }
@@ -101,7 +116,6 @@ export class SyntaxHighlighter {
       }
 
       if (state === HighlightState.NUMBER) {
-
         if (/[0-9]/.test(character)) {
           lexeme += character;
           i++;
@@ -116,7 +130,6 @@ export class SyntaxHighlighter {
       }
 
       if (state === HighlightState.STRING) {
-
         if (character === '"') {
           lexeme += '"';
 
@@ -144,7 +157,6 @@ export class SyntaxHighlighter {
       }
 
       if (state === HighlightState.LINE_COMMENT) {
-
         if (character === '\n') {
           result += `<span class="comment">${this.escapeHtml(lexeme)}</span>`;
 
@@ -160,7 +172,6 @@ export class SyntaxHighlighter {
       }
 
       if (state === HighlightState.BLOCK_COMMENT) {
-
         if (text.startsWith('*/', i)) {
           lexeme += '*/';
 
@@ -179,9 +190,12 @@ export class SyntaxHighlighter {
     }
 
     if (state === HighlightState.IDENTIFIER) {
-
       if (this.reservedWords.includes(lexeme)) {
-        result += `<span class="reserved">${this.escapeHtml(lexeme)}</span>`;
+        if (lexeme === 'FRESITA') {
+          result += `<span class="fresita">${this.escapeHtml(lexeme)}</span>`;
+        } else {
+          result += `<span class="reserved">${this.escapeHtml(lexeme)}</span>`;
+        }
       } else {
         result += `<span class="identifier">${this.escapeHtml(lexeme)}</span>`;
       }
@@ -207,9 +221,6 @@ export class SyntaxHighlighter {
   }
 
   private escapeHtml(text: string): string {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 }
