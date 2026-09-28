@@ -10,6 +10,8 @@ enum LexerState {
   D, //line comment
   E, //block comment
   F, //string
+  G, //<<
+  H, //>>
 }
 
 @Injectable({
@@ -42,7 +44,8 @@ export class Lexer {
     'PRINT',
     'GRAPH',
     'CLEAR',
-    'FRESITA'
+    'cout',
+    'cin',
   ];
 
   //lexical analysis
@@ -87,7 +90,7 @@ export class Lexer {
               break;
 
             case 34: //34 = "
-              token = this.llenarToken('Cadena', '"', fila, columna);
+              token = this.llenarToken('STRING', '"', fila, columna);
 
               //A -> F
               estado = LexerState.F;
@@ -97,7 +100,7 @@ export class Lexer {
             case 47:
               //47 = / -> line comment //
               if (caracteres[i + 1]?.charCodeAt(0) === 47) {
-                token = this.llenarToken('Comentario', '//', fila, columna);
+                token = this.llenarToken('COMMENT', '//', fila, columna);
 
                 i++;
                 columna++;
@@ -107,7 +110,7 @@ export class Lexer {
 
                 //42 = * -> block comment /*
               } else if (caracteres[i + 1]?.charCodeAt(0) === 42) {
-                token = this.llenarToken('Comentario', '/*', fila, columna);
+                token = this.llenarToken('COMMENT', '/*', fila, columna);
 
                 i++;
                 columna++;
@@ -117,19 +120,30 @@ export class Lexer {
 
                 //47 = / -> division operator
               } else {
-                this.tokens.push(this.llenarToken('Operador', '/', fila, columna));
+                this.tokens.push(this.llenarToken('OPERATOR', '/', fila, columna));
               }
 
               break;
 
-            case 61: //61 = =
+            case 60: //60 <<
+              token = this.llenarToken('insertion operator', '<<', fila, columna);
+
+              estado = LexerState.G;
+
+              break;
+            case 62: //62 >>
+              token = this.llenarToken('extraction operator', '>>', fila, columna);
+
+              estado = LexerState.H;
+
+              break;
             case 43: //43 = +
             case 45: //45 = -
             case 42: //42 = *
             case 37: //37 = %
             case 60: //60 = <
             case 62: //62 = >
-              this.tokens.push(this.llenarToken('Operador', c, fila, columna));
+              this.tokens.push(this.llenarToken(c, c, fila, columna));
 
               break;
 
@@ -141,7 +155,7 @@ export class Lexer {
             case 125: //125 = }
             case 91: //91 = [
             case 93: //93 = ]
-              this.tokens.push(this.llenarToken('Simbolo', c, fila, columna));
+              this.tokens.push(this.llenarToken(c, c, fila, columna));
 
               break;
 
@@ -154,14 +168,14 @@ export class Lexer {
                 (codigo >= 97 && codigo <= 122) ||
                 codigo === 95
               ) {
-                token = this.llenarToken('Identificador', c, fila, columna);
+                token = this.llenarToken('ID', c, fila, columna);
 
                 //A -> B
                 estado = LexerState.B;
 
                 //48-57 = 0-9
               } else if (codigo >= 48 && codigo <= 57) {
-                token = this.llenarToken('Numero', c, fila, columna);
+                token = this.llenarToken('NUMBER', c, fila, columna);
 
                 //A -> C
                 estado = LexerState.C;
@@ -269,8 +283,6 @@ export class Lexer {
           switch (codigo) {
             //10 = line break
             case 10: //10 = line break
-              this.tokens.push(token!);
-
               token = null;
 
               fila++;
@@ -299,8 +311,6 @@ export class Lexer {
 
                 i++;
                 columna++;
-
-                this.tokens.push(token!);
 
                 token = null;
 
@@ -367,6 +377,37 @@ export class Lexer {
           }
 
           break;
+
+        case LexerState.G:
+          switch (codigo) {
+            case 60: //60 = =
+              token!.lexeme += c;
+              token!.type = 'Insertion operator';
+
+              this.tokens.push(token!);
+
+              token = null;
+              estado = LexerState.H;
+
+              break;
+
+              break;
+          }
+
+          break;
+        case LexerState.H:
+          switch (codigo) {
+            case 62: //62 >>
+              token!.lexeme += c;
+              token!.type = 'Extraction operator';
+
+              this.tokens.push(token!);
+
+              token = null;
+              estado = LexerState.A;
+
+              break;
+          }
       }
     }
   }

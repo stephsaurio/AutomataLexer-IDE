@@ -26,6 +26,15 @@ body {
 .comment {
   color: #949992;
 }
-.fresita {
-  color: #ff69b4;
+.cout {
+  color: #7fffd4;
+}
+.cin {
+  color: #a52a2a;
+}
+.IO {
+  color: #a52a2a;
+}
+.EO {
+  color: #7cfc00;
 }

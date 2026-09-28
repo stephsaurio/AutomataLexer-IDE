@@ -29,6 +29,7 @@ statement
   / rightStatement
   / printStatement
   / graphStatement
+  / equalStatement
 
 stackDeclaration
   = "STACK" _ identifier _ ";" _
@@ -87,10 +88,19 @@ printStatement
 graphStatement
   = "GRAPH" _ "(" _ identifier _ ")" _ ";" _
 
-value
+equalStatement
+  = "=="
+
+
+ value
   = string
   / number
   / identifier
+
+operator
+  = "=="
+  / "="
+
 
 identifier
   = [a-zA-Z_] [a-zA-Z0-9_]*
