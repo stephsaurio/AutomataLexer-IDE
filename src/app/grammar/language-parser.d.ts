@@ -8,3 +8,4 @@ export class SyntaxError extends Error {
     };
   };
 }
+//npx peggy --format es --dts --output src/app/grammar/language-parser.js src/app/grammar/language.peggy
