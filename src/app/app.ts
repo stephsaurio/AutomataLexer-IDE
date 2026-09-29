@@ -29,31 +29,20 @@ export class App {
 
   analyze(): void {
     this.lexer.analyze(this.text);
+    this.tokens = this.lexer.tokens;
 
-    this.tokens = [...this.lexer.tokens];
-
-    const lexicalErrors: AnalysisError[] = this.lexer.errors.map((error) => ({
+    const lexicalErrors: AnalysisError[] = this.lexer.errors.map(({ message, line, column }) => ({
       type: 'Lexical',
-      message: error.message,
-      line: error.line,
-      column: error.column,
+      message,
+      line,
+      column,
     }));
 
-    let syntaxErrors: AnalysisError[] = [];
-
-    if (lexicalErrors.length === 0) {
-      syntaxErrors = this.syntaxAnalyzer.analyze(this.text);
-    }
-
-    this.errors = [...lexicalErrors, ...syntaxErrors];
-
+    this.errors = lexicalErrors.length
+      ? lexicalErrors
+      : this.syntaxAnalyzer.analyze(this.text);
     this.highlightedCode = this.highlighter.highlight(this.text);
-
-    if (this.errors.length > 0) {
-      this.activePanel = 'errors';
-    } else {
-      this.activePanel = 'tokens';
-    }
+    this.activePanel = this.errors.length ? 'errors' : 'tokens';
   }
 
   updateHighlight(): void {

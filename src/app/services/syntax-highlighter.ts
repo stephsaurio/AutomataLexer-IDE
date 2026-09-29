@@ -36,6 +36,7 @@ export class SyntaxHighlighter {
     'PRINT',
     'GRAPH',
     'cout',
+    'cin',
   ];
 
   //highlight source text
@@ -128,6 +129,7 @@ export class SyntaxHighlighter {
         if (this.reservedWords.includes(lexeme)) {
           if (lexeme === 'cout') {
             result += `<span class="cout">${this.escapeHtml(lexeme)}</span>`;
+          } else if (lexeme === 'cin') {
             result += `<span class="cin">${this.escapeHtml(lexeme)}</span>`;
           } else {
             result += `<span class="reserved">${this.escapeHtml(lexeme)}</span>`;
@@ -135,6 +137,9 @@ export class SyntaxHighlighter {
         } else {
           result += `<span class="identifier">${this.escapeHtml(lexeme)}</span>`;
         }
+
+        state = HighlightState.START;
+        continue;
       }
       if (state === HighlightState.NUMBER) {
         //continue number
@@ -220,6 +225,7 @@ export class SyntaxHighlighter {
       if (this.reservedWords.includes(lexeme)) {
         if (lexeme === 'cout') {
           result += `<span class="cout">${this.escapeHtml(lexeme)}</span>`;
+        } else if (lexeme === 'cin') {
           result += `<span class="cin">${this.escapeHtml(lexeme)}</span>`;
         } else {
           result += `<span class="reserved">${this.escapeHtml(lexeme)}</span>`;
