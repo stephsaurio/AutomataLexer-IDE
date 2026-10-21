@@ -1,11 +1,17 @@
 export function parse(input: string): unknown;
 
 export class SyntaxError extends Error {
+  found?: string | null;
+  expected?: Array<{
+    type: string;
+    text?: string;
+    description?: string;
+  }>;
   location: {
     start: {
+      offset: number;
       line: number;
       column: number;
     };
   };
 }
-//npx peggy --format es --dts --output src/app/grammar/language-parser.js src/app/grammar/language.peggy

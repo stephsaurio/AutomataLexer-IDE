@@ -5,6 +5,10 @@ import { SyntaxHighlighter } from './services/syntax-highlighter';
 import { SyntaxAnalyzer } from './services/syntax-analyzer';
 import { Token } from './models/token';
 import { AnalysisError } from './models/analysis-error';
+import { StructureGraph, StructureRunner } from './services/structure-runner';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+type DisplayGraph = StructureGraph & { safeUrl: SafeResourceUrl };
 
 @Component({
   selector: 'app-root',
@@ -18,13 +22,16 @@ export class App {
 
   tokens: Token[] = [];
   errors: AnalysisError[] = [];
+  graphs: DisplayGraph[] = [];
 
-  activePanel: 'errors' | 'tokens' = 'errors';
+  activePanel: 'errors' | 'tokens' | 'graphs' = 'errors';
 
   constructor(
     private lexer: Lexer,
     private highlighter: SyntaxHighlighter,
     private syntaxAnalyzer: SyntaxAnalyzer,
+    private structureRunner: StructureRunner,
+    private sanitizer: DomSanitizer,
   ) {}
 
   analyze(): void {
@@ -38,11 +45,19 @@ export class App {
       column,
     }));
 
-    this.errors = lexicalErrors.length
-      ? lexicalErrors
-      : this.syntaxAnalyzer.analyze(this.text);
+    this.errors = lexicalErrors.length ? lexicalErrors : this.syntaxAnalyzer.analyze(this.text);
+    this.graphs = [];
+
+    if (this.errors.length === 0 && this.text.trim()) {
+      this.graphs = this.structureRunner.run(this.text).map((graph) => ({
+        ...graph,
+        safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(graph.url),
+      }));
+      this.graphs.forEach((graph) => window.open(graph.url, '_blank'));
+    }
+
     this.highlightedCode = this.highlighter.highlight(this.text);
-    this.activePanel = this.errors.length ? 'errors' : 'tokens';
+    this.activePanel = this.errors.length ? 'errors' : this.graphs.length ? 'graphs' : 'tokens';
   }
 
   updateHighlight(): void {

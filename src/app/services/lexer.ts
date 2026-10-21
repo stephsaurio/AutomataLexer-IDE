@@ -1,28 +1,23 @@
 import { Injectable } from '@angular/core';
 import { Token } from '../models/token';
 import { LexicalError } from '../models/lexical-error';
-
-//automaton states
 enum LexerState {
-  A, //start
-  B, //identifier
-  C, //number
-  D, //line comment
-  E, //block comment
-  F, //string
-  G, //<<
-  H, //>>
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class Lexer {
-  //tokens and lexical errors
   errors: LexicalError[] = [];
   tokens: Token[] = [];
-
-  //reserved words
   reservedWords = [
     'STACK',
     'QUEUE',
@@ -48,137 +43,100 @@ export class Lexer {
     'cin',
   ];
 
-  //lexical analysis
+  // Tokeniza el texto de entrada
   analyze(text: string): void {
     this.tokens = [];
     this.errors = [];
-
-    //initial state
     let estado = LexerState.A;
-
-    //line and column position
     let fila = 1;
     let columna = 0;
-
-    //current token
     let token: Token | null = null;
-
-    //read text character by character
     const caracteres = [...text, '\n'];
 
     for (let i = 0; i < caracteres.length; i++) {
       const c = caracteres[i];
-
-      //get ASCII code
       const codigo = c.charCodeAt(0);
 
       columna++;
-
-      //check current automaton state
       switch (estado) {
-        //state A: start
         case LexerState.A:
           switch (codigo) {
-            case 32: //32 = space
-            case 9: //9 = tab
-            case 13: //13 = carriage return
+            case 32:
+            case 9:
+            case 13:
               break;
 
-            case 10: //10 = line break
+            case 10:
               fila++;
               columna = 0;
               break;
 
-            case 34: //34 = "
+            case 34:
               token = this.llenarToken('STRING', '"', fila, columna);
-
-              //A -> F
               estado = LexerState.F;
               break;
-
-            //47 = /
             case 47:
-              //47 = / -> line comment //
               if (caracteres[i + 1]?.charCodeAt(0) === 47) {
                 token = this.llenarToken('COMMENT', '//', fila, columna);
 
                 i++;
                 columna++;
-
-                //A -> D
                 estado = LexerState.D;
-
-                //42 = * -> block comment /*
               } else if (caracteres[i + 1]?.charCodeAt(0) === 42) {
                 token = this.llenarToken('COMMENT', '/*', fila, columna);
 
                 i++;
                 columna++;
-
-                //A -> E
                 estado = LexerState.E;
-
-                //47 = / -> division operator
               } else {
                 this.tokens.push(this.llenarToken('OPERATOR', '/', fila, columna));
               }
 
               break;
 
-            case 60: //60 <<
+            case 60:
               token = this.llenarToken('OPERATOR', '<', fila, columna);
 
               estado = LexerState.G;
 
               break;
-            case 62: //62 >>
+            case 62:
               token = this.llenarToken('OPERATOR', '>', fila, columna);
 
               estado = LexerState.H;
 
               break;
-            case 43: //43 = +
-            case 45: //45 = -
-            case 42: //42 = *
-            case 37: //37 = %
+            case 43:
+            case 45:
+            case 42:
+            case 37:
               this.tokens.push(this.llenarToken(c, c, fila, columna));
 
               break;
 
-            case 44: //44 = ,
-            case 59: //59 = ;
-            case 40: //40 = (
-            case 41: //41 = )
-            case 123: //123 = {
-            case 125: //125 = }
-            case 91: //91 = [
-            case 93: //93 = ]
+            case 44:
+            case 59:
+            case 40:
+            case 41:
+            case 123:
+            case 125:
+            case 91:
+            case 93:
               this.tokens.push(this.llenarToken(c, c, fila, columna));
 
               break;
 
             default:
-              //65-90 = A-Z
-              //97-122 = a-z
-              //95 = _
               if (
                 (codigo >= 65 && codigo <= 90) ||
                 (codigo >= 97 && codigo <= 122) ||
                 codigo === 95
               ) {
                 token = this.llenarToken('ID', c, fila, columna);
-
-                //A -> B
                 estado = LexerState.B;
-
-                //48-57 = 0-9
               } else if (codigo >= 48 && codigo <= 57) {
                 token = this.llenarToken('NUMBER', c, fila, columna);
-
-                //A -> C
                 estado = LexerState.C;
-
-                //unknown character
               } else {
                 this.errors.push({
                   message: `Unrecognized symbol: ${c}`,
@@ -191,8 +149,6 @@ export class Lexer {
           }
 
           break;
-
-        //state B: identifier
         case LexerState.B:
           if (/[a-zA-Z0-9_]/.test(c)) {
             token!.lexeme += c;
@@ -211,8 +167,6 @@ export class Lexer {
             columna--;
           }
           break;
-
-        //state C: number
         case LexerState.C:
           if (/[0-9]/.test(c)) {
             token!.lexeme += c;
@@ -224,44 +178,32 @@ export class Lexer {
             columna--;
           }
           break;
-
-        //state D: line comment
         case LexerState.D:
           switch (codigo) {
-            //10 = line break
-            case 10: //10 = line break
+            case 10:
               token = null;
 
               fila++;
               columna = 0;
-
-              //D -> A
               estado = LexerState.A;
 
               break;
-
-            //continue comment
             default:
               token!.lexeme += c;
               break;
           }
 
           break;
-
-        //state E: block comment
         case LexerState.E:
           switch (codigo) {
-            case 42: //42 = *
+            case 42:
               if (caracteres[i + 1]?.charCodeAt(0) === 47) {
-                //47 = / -> */
                 token!.lexeme += '*/';
 
                 i++;
                 columna++;
 
                 token = null;
-
-                //E -> A
                 estado = LexerState.A;
               } else {
                 token!.lexeme += c;
@@ -269,38 +211,32 @@ export class Lexer {
 
               break;
 
-            case 10: //10 = line break
+            case 10:
               token!.lexeme += '\n';
 
               fila++;
               columna = 0;
 
               break;
-
-            //continue comment
             default:
               token!.lexeme += c;
               break;
           }
 
           break;
-
-        //state F: string
         case LexerState.F:
           switch (codigo) {
-            case 34: //34 = "
+            case 34:
               token!.lexeme += c;
 
               this.tokens.push(token!);
 
               token = null;
-
-              //F -> A
               estado = LexerState.A;
 
               break;
 
-            case 10: //10 = line break -> unclosed string
+            case 10:
               this.errors.push({
                 message: 'Unclosed string',
                 line: token!.line,
@@ -311,13 +247,9 @@ export class Lexer {
 
               fila++;
               columna = 0;
-
-              //F -> A
               estado = LexerState.A;
 
               break;
-
-            //continue string
             default:
               token!.lexeme += c;
               break;
@@ -358,8 +290,6 @@ export class Lexer {
       }
     }
   }
-
-  //create token
   private llenarToken(type: string, lexeme: string, line: number, column: number): Token {
     return {
       type,

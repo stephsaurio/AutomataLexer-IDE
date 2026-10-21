@@ -54,6 +54,13 @@
         Tokens
       </button>
 
+      <button
+        [class.active]="activePanel === 'graphs'"
+        (click)="activePanel = 'graphs'"
+      >
+        Graphs
+      </button>
+
     </div>
 
     <div class="panel-content">
@@ -73,7 +80,8 @@
             <thead>
               <tr>
                 <th>Type</th>
-                <th>Error</th>
+                <th>Found</th>
+                <th>Description</th>
                 <th>Line</th>
                 <th>Column</th>
               </tr>
@@ -85,6 +93,7 @@
 
                 <tr>
                   <td>{{ error.type }}</td>
+                  <td>{{ error.found || '—' }}</td>
                   <td>{{ error.message }}</td>
                   <td>{{ error.line }}</td>
                   <td>{{ error.column }}</td>
@@ -140,6 +149,19 @@
 
         }
 
+      }
+
+      @if (activePanel === 'graphs') {
+        @if (graphs.length === 0) {
+          <div class="no-results">No graphs</div>
+        } @else {
+          @for (graph of graphs; track $index) {
+            <section class="graph-result">
+              <h3>{{ graph.name }}</h3>
+              <iframe [src]="graph.safeUrl" title="Graphviz graph"></iframe>
+            </section>
+          }
+        }
       }
 
     </div>
