@@ -163,10 +163,7 @@
           <div class="no-results">No graphs</div>
         } @else {
           @for (graph of graphs; track $index) {
-            <section class="graph-result">
-              <h3>{{ graph.name }}</h3>
-              <div #graphContainer class="graph-container" aria-label="Graphviz graph"></div>
-            </section>
+            <app-grafica [nombre]="graph.name" [dot]="graph.dot" />
           }
         }
       }

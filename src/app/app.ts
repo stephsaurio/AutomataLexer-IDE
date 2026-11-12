@@ -1,5 +1,6 @@
-import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Grafica } from './grafica/grafica';
 import { Lexer } from './services/lexer';
 import { SyntaxHighlighter } from './services/syntax-highlighter';
 import { SyntaxAnalyzer } from './services/syntax-analyzer';
@@ -9,13 +10,11 @@ import { StructureGraph, StructureRunner } from './services/structure-runner';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule],
+  imports: [FormsModule, Grafica],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
-  @ViewChildren('graphContainer') graphContainers!: QueryList<ElementRef<HTMLDivElement>>;
-
   text = '';
   highlightedCode = '';
 
@@ -52,10 +51,6 @@ export class App {
       const result = this.structureRunner.run(this.text);
       this.graphs = result.graphs;
       this.consoleMessages = result.consoleMessages;
-      this.graphs.forEach((graph) => {
-        const url = `https://dreampuf.github.io/GraphvizOnline/#${encodeURIComponent(graph.dot)}`;
-        window.open(url, '_blank');
-      });
     }
 
     this.highlightedCode = this.highlighter.highlight(this.text);
@@ -66,16 +61,6 @@ export class App {
         : this.consoleMessages.length
           ? 'console'
           : 'tokens';
-    if (this.graphs.length) window.setTimeout(() => void this.renderGraphs());
-  }
-
-  private async renderGraphs(): Promise<void> {
-    const d3 = await import('d3');
-    await import('d3-graphviz');
-    this.graphContainers.forEach((container, index) => {
-      const graph = this.graphs[index];
-      if (graph) (d3.select(container.nativeElement) as any).graphviz().renderDot(graph.dot);
-    });
   }
 
   updateHighlight(): void {

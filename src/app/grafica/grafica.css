@@ -1,0 +1,23 @@
+.graph-result {
+  min-height: 320px;
+  margin-bottom: 12px;
+}
+
+.graph-result h3 {
+  margin: 0 0 8px;
+  color: #bbb;
+  font: 13px Arial, sans-serif;
+}
+
+.graph-container {
+  width: 100%;
+  height: 300px;
+  overflow: auto;
+  border: 1px solid #333;
+  background: #fff;
+}
+
+.graph-container svg {
+  max-width: 100%;
+  height: auto;
+}
