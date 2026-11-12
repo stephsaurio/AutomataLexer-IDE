@@ -28,8 +28,14 @@
   font: 14px/21px monospace;
 }
 
-.line-number-list { padding-top: 12px; }
-.line-number-list div { height: 21px; padding-right: 10px; box-sizing: border-box; }
+.line-number-list {
+  padding-top: 12px;
+}
+.line-number-list div {
+  height: 21px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
 
 .code-area {
   position: relative;
@@ -72,8 +78,12 @@
   z-index: 2;
 }
 
-.code-area textarea::placeholder { color: #666; }
-.code-area textarea::selection { background: rgba(80, 120, 180, 0.35); }
+.code-area textarea::placeholder {
+  color: #666;
+}
+.code-area textarea::selection {
+  background: rgba(80, 120, 180, 0.35);
+}
 
 .analyze-button {
   position: absolute;
@@ -88,7 +98,9 @@
   z-index: 5;
 }
 
-.analyze-button:hover { background: #3a3a3a; }
+.analyze-button:hover {
+  background: #3a3a3a;
+}
 
 .bottom-panel {
   height: 40vh;
@@ -121,18 +133,75 @@
   cursor: pointer;
 }
 
-.panel-tabs button:hover { color: #ddd; }
-.panel-tabs button.active { border-top: 2px solid #569cd6; background: #1e1e1e; color: #fff; }
+.panel-tabs button:hover {
+  color: #ddd;
+}
+.panel-tabs button.active {
+  border-top: 2px solid #569cd6;
+  background: #1e1e1e;
+  color: #fff;
+}
 
-.panel-content { flex: 1; overflow: auto; padding: 10px; }
+.panel-content {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+}
 
-table { width: 100%; border-collapse: collapse; font: 13px Arial, sans-serif; }
-th, td { padding: 7px 10px; border-bottom: 1px solid #333; text-align: left; }
-th { background: #252526; color: #ccc; font-weight: normal; }
-td { color: #bbb; }
-tr:hover td { background: #252526; }
-.no-results { padding: 15px; color: #777; font-size: 13px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font:
+    13px Arial,
+    sans-serif;
+}
+th,
+td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #333;
+  text-align: left;
+}
+th {
+  background: #252526;
+  color: #ccc;
+  font-weight: normal;
+}
+td {
+  color: #bbb;
+}
+tr:hover td {
+  background: #252526;
+}
+.no-results {
+  padding: 15px;
+  color: #777;
+  font-size: 13px;
+}
 
-.graph-result { min-height: 320px; margin-bottom: 12px; }
-.graph-result h3 { margin: 0 0 8px; font: 13px Arial, sans-serif; color: #bbb; }
-.graph-result iframe { width: 100%; height: 300px; border: 1px solid #333; background: #fff; }
+.graph-result {
+  min-height: 320px;
+  margin-bottom: 12px;
+}
+.graph-result h3 {
+  margin: 0 0 8px;
+  font:
+    13px Arial,
+    sans-serif;
+  color: #bbb;
+}
+.graph-container {
+  width: 100%;
+  height: 300px;
+  overflow: auto;
+  border: 1px solid #333;
+  background: #fff;
+}
+.graph-container svg {
+  max-width: 100%;
+  height: auto;
+}
+.console-output {
+  padding: 4px 8px;
+  color: #d4d4d4;
+  font: 13px/1.5 monospace;
+}

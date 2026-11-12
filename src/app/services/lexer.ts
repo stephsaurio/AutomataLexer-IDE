@@ -39,6 +39,7 @@ export class Lexer {
     'PRINT',
     'GRAPH',
     'CLEAR',
+    'console',
     'cout',
     'cin',
   ];
@@ -115,6 +116,7 @@ export class Lexer {
               break;
 
             case 44:
+            case 46:
             case 59:
             case 40:
             case 41:

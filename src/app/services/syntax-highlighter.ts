@@ -33,6 +33,8 @@ export class SyntaxHighlighter {
     'PRINT',
     'GRAPH',
     'cout',
+    'CONSOLE',
+    'pop',
     'cin',
   ];
 

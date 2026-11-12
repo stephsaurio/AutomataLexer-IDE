@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Lexer } from './services/lexer';
 import { SyntaxHighlighter } from './services/syntax-highlighter';
@@ -6,9 +6,6 @@ import { SyntaxAnalyzer } from './services/syntax-analyzer';
 import { Token } from './models/token';
 import { AnalysisError } from './models/analysis-error';
 import { StructureGraph, StructureRunner } from './services/structure-runner';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
-type DisplayGraph = StructureGraph & { safeUrl: SafeResourceUrl };
 
 @Component({
   selector: 'app-root',
@@ -17,21 +14,23 @@ type DisplayGraph = StructureGraph & { safeUrl: SafeResourceUrl };
   styleUrl: './app.css',
 })
 export class App {
+  @ViewChildren('graphContainer') graphContainers!: QueryList<ElementRef<HTMLDivElement>>;
+
   text = '';
   highlightedCode = '';
 
   tokens: Token[] = [];
   errors: AnalysisError[] = [];
-  graphs: DisplayGraph[] = [];
+  graphs: StructureGraph[] = [];
+  consoleMessages: string[] = [];
 
-  activePanel: 'errors' | 'tokens' | 'graphs' = 'errors';
+  activePanel: 'errors' | 'tokens' | 'graphs' | 'console' = 'errors';
 
   constructor(
     private lexer: Lexer,
     private highlighter: SyntaxHighlighter,
     private syntaxAnalyzer: SyntaxAnalyzer,
     private structureRunner: StructureRunner,
-    private sanitizer: DomSanitizer,
   ) {}
 
   analyze(): void {
@@ -47,17 +46,36 @@ export class App {
 
     this.errors = lexicalErrors.length ? lexicalErrors : this.syntaxAnalyzer.analyze(this.text);
     this.graphs = [];
+    this.consoleMessages = [];
 
     if (this.errors.length === 0 && this.text.trim()) {
-      this.graphs = this.structureRunner.run(this.text).map((graph) => ({
-        ...graph,
-        safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(graph.url),
-      }));
-      this.graphs.forEach((graph) => window.open(graph.url, '_blank'));
+      const result = this.structureRunner.run(this.text);
+      this.graphs = result.graphs;
+      this.consoleMessages = result.consoleMessages;
+      this.graphs.forEach((graph) => {
+        const url = `https://dreampuf.github.io/GraphvizOnline/#${encodeURIComponent(graph.dot)}`;
+        window.open(url, '_blank');
+      });
     }
 
     this.highlightedCode = this.highlighter.highlight(this.text);
-    this.activePanel = this.errors.length ? 'errors' : this.graphs.length ? 'graphs' : 'tokens';
+    this.activePanel = this.errors.length
+      ? 'errors'
+      : this.graphs.length
+        ? 'graphs'
+        : this.consoleMessages.length
+          ? 'console'
+          : 'tokens';
+    if (this.graphs.length) window.setTimeout(() => void this.renderGraphs());
+  }
+
+  private async renderGraphs(): Promise<void> {
+    const d3 = await import('d3');
+    await import('d3-graphviz');
+    this.graphContainers.forEach((container, index) => {
+      const graph = this.graphs[index];
+      if (graph) (d3.select(container.nativeElement) as any).graphviz().renderDot(graph.dot);
+    });
   }
 
   updateHighlight(): void {

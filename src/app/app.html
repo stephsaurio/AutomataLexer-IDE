@@ -61,6 +61,13 @@
         Graphs
       </button>
 
+      <button
+        [class.active]="activePanel === 'console'"
+        (click)="activePanel = 'console'"
+      >
+        Console
+      </button>
+
     </div>
 
     <div class="panel-content">
@@ -158,8 +165,18 @@
           @for (graph of graphs; track $index) {
             <section class="graph-result">
               <h3>{{ graph.name }}</h3>
-              <iframe [src]="graph.safeUrl" title="Graphviz graph"></iframe>
+              <div #graphContainer class="graph-container" aria-label="Graphviz graph"></div>
             </section>
+          }
+        }
+      }
+
+      @if (activePanel === 'console') {
+        @if (consoleMessages.length === 0) {
+          <div class="no-results">No console output</div>
+        } @else {
+          @for (message of consoleMessages; track $index) {
+            <div class="console-output">{{ message }}</div>
           }
         }
       }
